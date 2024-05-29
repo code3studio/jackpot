@@ -1,6 +1,7 @@
 export interface Player {
     player: string;
     amount: number;
+    color:string
 }
 
 export interface ChatType {

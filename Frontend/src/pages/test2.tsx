@@ -16,6 +16,8 @@ import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
+import { generateFromString } from "generate-avatar";
+import { Player } from "../utils/type";
 
 if (typeof Highcharts === "object") {
   require("highcharts/highcharts-more")(Highcharts);
@@ -100,13 +102,18 @@ export default function Waiting() {
     }
   }, [gameData?.players, wallet.publicKey, wallet.connected]);
   // @ts-ignore
-  const chartOptions = {
-    chart: {
+  const chartOptions:Highcharts.Options = useMemo(() =>{
+    return  {chart: {
       type: "pie",
       backgroundColor: "#080808",
       events: {
         render: function () {
           const chart = this;
+          
+          //@ts-ignore
+        //   chart.renderer.boxWrapper.element.querySelector('.highcharts-series-group').setAttribute(
+        //     'transform', 'rotate(45, ' + chart.plotWidth / 2 + ', ' + chart.plotHeight / 2 + ')'
+        // );
           const text = `${sumPots} SOL`;
           const countdownText = `Time left: --s`;
           const style = {
@@ -150,17 +157,15 @@ export default function Waiting() {
           }
           //@ts-ignore
           if (!chart.countdownText) {
+            
             //@ts-ignore
-
             chart.countdownText = chart.renderer
-              //@ts-ignore
+            
 
               .text(
                 countdownText,
-                //@ts-ignore
 
                 chart.chartWidth / 2,
-                //@ts-ignore
 
                 chart.plotHeight / 2 + chart.plotTop + 30
               )
@@ -225,18 +230,18 @@ export default function Waiting() {
     },
     pane: {
       center: ["50%", "50%"],
-      size: "100%",
+      // size: "100%",
       startAngle: 0,
       endAngle: 360,
       background: {
         backgroundColor: "#080808",
-        innerRadius: "90%",
+        innerRadius: "100%",
         outerRadius: "100%",
         shape: "arc",
       },
     },
     tooltip: {
-      enabled: true,
+      // enabled: true,
     },
     yAxis: {
       min: 0,
@@ -263,31 +268,38 @@ export default function Waiting() {
           enabled: false,
         },
         linecap: "round",
-        rounded: true,
+        rounded: false,
       },
     },
-    colors: ["#FF204E", "#F72798", "#F57D1F", "#EBF400"],
+    // colors: ["#FF204E", "#F72798", "#F57D1F", "#EBF400"],
+    colors: gameData?.players ? gameData?.players.map(item => item.color) :["#FF204E", "#F72798", "#F57D1F", "#EBF400"] ,
     series: [
       {
         type: "pie",
         name: "Amount",
-        data: [
-          { name: "Player 1", y: 0.5 },
-          { name: "Player 2", y: 1 },
-          { name: "Player 3", y: 0.75 },
-          { name: "Player 4", y: 3 },
-        ],
+        data:gameData?.players ? gameData?.players.map(item=> ({name:item.player,y:item.amount})) : [
+            { name: "Player 1", y: 0.5 },
+            { name: "Player 2", y: 1 },
+            { name: "Player 3", y: 0.75 },
+            { name: "Player 4", y: 3 },
+          ],
+        // data: [
+        //   { name: "Player 1", y: 0.5 },
+        //   { name: "Player 2", y: 1 },
+        //   { name: "Player 3", y: 0.75 },
+        //   { name: "Player 4", y: 3 },
+        // ],
         innerSize: "65%",
       },
       {
         type: "solidgauge",
         name: "Countdown",
-        data: [40],
-        innerRadius: "97%",
+        data: [10],
+        innerRadius: "100%",
         radius: "100%",
       },
-    ],
-  };
+    ],}
+  },[gameData?.players]);
   const gaugeChartOptions = {
     chart: {
       type: "solidgauge",
@@ -401,16 +413,17 @@ export default function Waiting() {
                 ) : (
                   <div className="">
                     {gameData &&
-                      gameData.players?.map((item: any, key: number) => (
+                      gameData.players?.map((item: Player, key: number) => (
                         <div
-                          className="flex items-center justify-between"
+                          className="flex items-center justify-between mb-2 p-2 rounded-2xl" style={{border:`1px solid ${item.color}`}}
                           key={key}
                         >
-                          <img
+                          <img src={`data:image/svg+xml;utf8,${generateFromString(item.player)}`} className="w-8 h-8 rounded-full"/>
+                          {/* <img
                             src="/placeholder.svg"
                             alt="player avatar"
                             className="w-8 h-8 rounded-full"
-                          />
+                          /> */}
                           <div className="flex-1 ml-2">
                             <div className="text-sm">
                               {item.player.slice(0, 3)}...
@@ -424,8 +437,11 @@ export default function Waiting() {
                             </div>
                           </div>
                           <div className="text-right">
-                            <div className="text-sm">100%</div>{" "}
+                            <div className="text-sm">{
+                             Math.round(((item.amount/LAMPORTS_PER_SOL)*100/ sumPots)*100)/100
+                            }%</div>{" "}
                           </div>
+                            <div className={`w-3 h-3`} style={{backgroundColor:item.color}}/>
                         </div>
                       ))}
                   </div>
@@ -435,8 +451,9 @@ export default function Waiting() {
 
             {/* CENTER SIDE */}
             <main className="w-full lg:w-3/4 flex flex-col items-center">
-              <div className="relative rounded-md p-4 w-full h-full mb-4">
+              {/* <div className="relative rounded-md p-4 w-full h-full mb-4"> */}
                 <HighchartsReact
+                  
                   highcharts={Highcharts}
                   options={chartOptions}
                 />
@@ -446,7 +463,7 @@ export default function Waiting() {
                     options={gaugeChartOptions}
                   />
                 </div> */}
-              </div>
+              {/* </div> */}
             </main>
 
             {/* RIGHT SIDE */}

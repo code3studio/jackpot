@@ -42,3 +42,16 @@
 .wallet-adapter-button.wallet-adapter-button-trigger {
   white-space: nowrap !important;
 }
+@keyframes rotateAnimation {
+  from {
+      transform: rotate(0deg);
+  }
+  to {
+      transform: rotate(360deg);
+  }
+}
+
+.highcharts-series-group {
+  animation: rotateAnimation 5s infinite linear;
+  transform-origin: center center; 
+}

@@ -1,5 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { SOL_PRICE_API } from "../config";
+import { Player } from "./type";
+// import randomString from 'randomized-string'
+const randomString = require('randomized-string');
+import randomColor from 'randomcolor'
 
 export const useSolanaPrice = () => {
     const { isLoading, isError, data, error } = useQuery(["solanaPrice"], async () => {
@@ -118,3 +122,27 @@ const colors = [
         shadow: " inset 0px 8px 4px rgba(0, 0, 0, 0.1), inset 0px -8px 4px rgba(0, 0, 0, 0.25)"
     },
 ]
+
+
+
+function getRandomPlayer(): Player {
+    const players =randomString.generate(6);
+    const colors = randomColor();
+
+    return {
+        player: players,
+        amount: Math.floor(Math.random() * 10000000000),
+        color: colors
+    };
+}
+
+export function generateRandomPlayersArray(size: number): Player[] {
+    const playersArray: Player[] = [];
+    for (let i = 0; i < size; i++) {
+        playersArray.push(getRandomPlayer());
+    }
+    return playersArray;
+}
+
+
+

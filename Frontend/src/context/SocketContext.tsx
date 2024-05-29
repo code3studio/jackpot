@@ -4,6 +4,8 @@ import io, { Socket } from "socket.io-client";
 import getConfig from "next/config";
 import { ChatType, ClientToServerEvents, Player, ServerToClientEvents } from "../utils/type";
 import { API_URL, SOCKET_URL } from "../config";
+import randomColor from 'randomcolor'
+import { generateRandomPlayersArray } from "../utils/util";
 
 const { publicRuntimeConfig } = getConfig();
 export type SocketType = Socket<ServerToClientEvents, ClientToServerEvents>;
@@ -80,6 +82,30 @@ const SocketProvider = (props: { children: any }) => {
             console.log(error);
         }
     }
+//offline MODE
+
+    const initializeUserData =  () => {
+        setGameData({
+            players:generateRandomPlayersArray(Math.floor(Math.random() * 10)),
+            endTimestamp:1200,
+            pda:"rektlker",
+            gameStarted:false
+        })
+        // try {
+        //     const response = await fetch(`${API_URL}getRecentGame`);
+        //     const data = await response.json();
+        //     if (data?.players) {
+        //         setGameData({
+        //             players: data.players,
+        //             endTimestamp: data.endTimestamp,
+        //             pda: data.pda,
+        //             gameStarted: true
+        //         })
+        //     }
+        // } catch (error) {
+        //     console.log(error);
+        // }
+    }
 
     const getFirstMessages = async () => {
         try {
@@ -94,6 +120,7 @@ const SocketProvider = (props: { children: any }) => {
     }
 
     useEffect(() => {
+        initializeUserData()
         const socket = io(SOCKET_URL, {
             transports: ["websocket"],
         });
